@@ -71,7 +71,7 @@ export class Provider extends PureComponent {
           const stringified = await response.text()
           const { films: filmUrls } = JSON.parse(stringified)
 
-          return Promise.all(
+          const films = await Promise.all(
             filmUrls.map(async(url) => {
               const response = await fetch(url)
               // return false to filter out request errors...
@@ -83,22 +83,15 @@ export class Provider extends PureComponent {
               }
 
               const stringified = await response.text()
-              const film = JSON.parse(stringified)
-              return new Promise(resolve => {
-                this.setState(lastState => {
-                  const { films: lastFilms } = lastState.characters[i]
-                  const films = [ ...lastFilms, film ]
-                  return this.updateCharacter(lastState, i, { films })
-                }, resolve)
-              })
-            })
-          ).then(() => {
-            this.setState(lastState => {
-              // with film data and new status (LOADED)
-              const status = LOADED
-              return this.updateCharacter(lastState, i, { status })
-            })
+              return JSON.parse(stringified)
+            }).filter(Boolean)
+          )
+
+          return this.setState(lastState => {
+            const status = LOADED
+            return this.updateCharacter(lastState, i, { films, status })
           })
+          
         }
 
         default: {
