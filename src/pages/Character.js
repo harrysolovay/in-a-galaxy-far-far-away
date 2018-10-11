@@ -40,55 +40,62 @@ export default connect(
 
       return (
         <Fragment>
+
           <Header>
             <h1 children={ name } />
             <BackButton />
           </Header>
-          {(() => {
-            switch (status) {
 
-              case LOADING: {
-                return <Loading />
-              }
+          {
+            (() => {
+              switch (status) {
 
-              case LOADED: {
-                return (
-                  <ListContainer>
-                    {
-                      films.map(({ title, release_date }) => (
-                        <ListItem
-                          { ...{ title }}
-                          subtitle={(() => {
-                            const formatted = moment(release_date)
-                              .format('dddd, MMM D YYYY')
-                            return `Released on ${ formatted }`
-                          })()}
-                        />
-                      ))
-                    }
-                  </ListContainer>
-                )
-              }
+                case LOADING: {
+                  return <Loading />
+                }
 
-              case ERROR: {
-                const otherResource = `https://www.starwars.com/search?q=${ name.split(' ').join('%20') }`
-                return (
-                  <ListContainer>
-                    <ListItem
-                      title='Technical difficulties. Check out...'
-                      subtitle={ otherResource }
-                      href={ otherResource }
-                    />
-                  </ListContainer>
-                )
-              }
+                case LOADED: {
+                  return (
+                    <ListContainer>
+                      {
+                        films.map(({ title, release_date }) => (
+                          <ListItem
+                            { ...{ title }}
+                            subtitle={(() => {
+                              const formatted = moment(release_date)
+                                .format('dddd, MMM D YYYY')
+                              return `Released on ${ formatted }`
+                            })()}
+                          />
+                        ))
+                      }
+                    </ListContainer>
+                  )
+                }
 
-              default: {
-                // track
-                return
+                case ERROR: {
+                  const otherResource = `https://www.starwars.com/search?q=${ name.split(' ').join('%20') }`
+                  return (
+                    <ListContainer>
+                      <ListItem
+                        title='Technical difficulties. Check out...'
+                        subtitle={ otherResource }
+                        href={ otherResource }
+                      />
+                    </ListContainer>
+                  )
+                }
+
+                default: {
+                  // should be unreachable
+                  // ... place tracker, just incase
+                  return
+                }
+                
               }
-            }
-          })()}
+            })()
+          }
+
         </Fragment>
       )
     }

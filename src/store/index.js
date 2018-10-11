@@ -21,7 +21,7 @@ export class Provider extends PureComponent {
 
   state = { ...INITIAL_STATE }
 
-  // pure function + used in non-default switch cases below
+  // pure + used in non-default switch cases below
   updateCharacter = (lastState, i, newProps) => {
     const { characters: lastCharacters } = lastState
     const characterWithNewProps = Object.assign({}, lastCharacters[i], newProps)
@@ -32,13 +32,12 @@ export class Provider extends PureComponent {
   // pure, other than setState calls (functional setState as recommended)
   loadCharacter = async(i) => {
 
-    // will be null if does not exist in characters.json
+    // will be null if does not exist in `characters.json`
     const { [i]: character } = this.state.characters
 
-    // if not null, and not yet loaded (incase we wanted to implement a localStorage or cookie strategy)...
     if (character && character.status === UNTOUCHED) {
 
-      // make sure the latter setState isn't overriden with improbable execution timing
+      // make sure the latter setState isn't overriden with improbable execution timing (setting LOADING after new state set below)
       await new Promise(resolve => {
         this.setState(lastState => ({
           ...this.updateCharacter(lastState, i, {
@@ -74,14 +73,14 @@ export class Provider extends PureComponent {
               // trigger the requests
               const response = await fetch(url)
 
-              // return false to filter out request errors...
-              // depending on UX-constraints, might want to display "errored" films
+              // return false for later filtering of "errored" requests...
+              // depending on UX-constraints, might want to display "errored" films (maybe with retry request option)
               const { status } = response
               if (status === 404) {
                 return false
               }
 
-              // return the parsed film
+              // return the parsed film object
               const stringified = await response.text()
               return JSON.parse(stringified)
 
