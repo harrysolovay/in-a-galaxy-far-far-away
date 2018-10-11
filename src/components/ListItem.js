@@ -15,11 +15,15 @@ const Inner = styled.div`
   padding: 15px;
 `
 
+const Text = styled.span`
+  display: block;
+`
+
 const Link = styled(UnstyledLink)`
   display: block;
 `
 
-const Text = styled.span`
+const Anchor = styled.a`
   display: block;
 `
 
@@ -33,7 +37,7 @@ const Subtitle = styled(Text)`
   line-height: 1.375em;
 `
 
-export default ({ title, subtitle, i }) => {
+export default ({ title, subtitle, i, href }) => {
 
   const children = (
     <Inner>
@@ -53,7 +57,14 @@ export default ({ title, subtitle, i }) => {
               to={ `/${ i }` }
               { ...{ children }}
             />
-          : children
+          : href
+            ? <Anchor
+                href={ href }
+                target='_blank'
+                rel='noopener noreferrer'
+                { ...{ children }}
+              />
+            : children
       }
     </Outer>
   )

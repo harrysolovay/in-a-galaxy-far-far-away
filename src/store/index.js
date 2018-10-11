@@ -16,6 +16,7 @@ const INITIAL_STATE = {
     character => ({
       ...character,
       status: UNTOUCHED,
+      films: [],
     })
   ),
 }
@@ -69,27 +70,35 @@ export class Provider extends PureComponent {
           // retrieve films from response
           const stringified = await response.text()
           const { films: filmUrls } = JSON.parse(stringified)
-          // batch the new request(s) resolution
-          const films = await Promise.all(
+
+          return Promise.all(
             filmUrls.map(async(url) => {
               const response = await fetch(url)
               // return false to filter out request errors...
               // depending on UX-constraints, might want to display "errored" films
-              if (response.status !== 200) {
+
+              const { status } = response
+              if (status === 404) {
                 return false
               }
-              const stringified = await response.text()
-              return JSON.parse(stringified)
-            }).filter(Boolean)
-          )
 
-          return this.setState(lastState => ({
-            // with film data and new status (LOADED)
-            ...this.updateCharacter(lastState, i, {
-              films,
-              status: LOADED,
+              const stringified = await response.text()
+              const film = JSON.parse(stringified)
+              return new Promise(resolve => {
+                this.setState(lastState => {
+                  const { films: lastFilms } = lastState.characters[i]
+                  const films = [ ...lastFilms, film ]
+                  return this.updateCharacter(lastState, i, { films })
+                }, resolve)
+              })
             })
-          }), () => console.log(this.state))
+          ).then(() => {
+            this.setState(lastState => {
+              // with film data and new status (LOADED)
+              const status = LOADED
+              return this.updateCharacter(lastState, i, { status })
+            })
+          })
         }
 
         default: {

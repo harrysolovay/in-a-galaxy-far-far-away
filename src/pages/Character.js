@@ -2,18 +2,8 @@ import React, { PureComponent, Fragment } from 'react'
 import styled from 'styled-components'
 import { Redirect, withRouter } from 'react-router-dom'
 import { connect, LOADING, LOADED, ERROR } from 'store'
-import { ListContainer, ListItem } from 'components'
+import { ListContainer, ListItem, Header, Loading } from 'components'
 import moment from 'moment'
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 33px;
-  > * {
-    padding: 10px;
-  }
-`
 
 const Button = styled.button`
   appearance: none;
@@ -23,16 +13,17 @@ const Button = styled.button`
   padding: 5px 30px;
   outline: none;
   cursor: pointer;
+  margin-bottom: 33px;
 `
 
-const BackButton = withRouter(({ history: { goBack } }) => {
-  return (
+const BackButton = withRouter(
+  ({ history: { goBack } }) => (
     <Button
       children={ `<` }
       onClick={ goBack }
     />
   )
-})
+)
 
 export default connect(
   class extends PureComponent {
@@ -42,26 +33,25 @@ export default connect(
       const { characters } = this.props.$
       const { i } = this.props.match.params
       const character = characters[i]
-      
+
       if (!character) return <Redirect to='/4/0/4' />
+
+      const { name, status, films } = character
 
       return (
         <Fragment>
           <Header>
-            <h1>{ character.name }</h1>
+            <h1 children={ name } />
             <BackButton />
           </Header>
           {(() => {
-            switch (character.status) {
+            switch (status) {
 
               case LOADING: {
-                return (
-                  <div>loading</div>
-                )
+                return <Loading />
               }
 
               case LOADED: {
-                const { films } = character
                 return (
                   <ListContainer>
                     {
@@ -81,7 +71,16 @@ export default connect(
               }
 
               case ERROR: {
-                return <div>there was an error</div>
+                const otherResource = `https://www.starwars.com/search?q=${ name.split(' ').join('%20') }`
+                return (
+                  <ListContainer>
+                    <ListItem
+                      title='Technical difficulties. Check out...'
+                      subtitle={ otherResource }
+                      href={ otherResource }
+                    />
+                  </ListContainer>
+                )
               }
 
               default: {
