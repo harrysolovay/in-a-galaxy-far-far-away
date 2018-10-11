@@ -13,7 +13,7 @@ const Button = styled.button`
   padding: 5px 30px;
   outline: none;
   cursor: pointer;
-  margin-bottom: 33px;
+  margin-bottom: 28px;
 `
 
 const BackButton = withRouter(
@@ -84,7 +84,8 @@ export default connect(
               }
 
               default: {
-                return <div>should never hit</div>
+                // track
+                return
               }
             }
           })()}

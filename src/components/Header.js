@@ -5,6 +5,6 @@ export default styled.div`
   flex-direction: column;
   align-items: center;
   > * {
-    padding: 10px;
+    padding: 10px 10px 5px;
   }
 `

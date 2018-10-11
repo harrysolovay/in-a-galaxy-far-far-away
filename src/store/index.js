@@ -12,13 +12,9 @@ export const ERROR = 'ERROR'
 
 // default each character's loading state to `UNTOUCHED`
 const INITIAL_STATE = {
-  characters: characters.map(
-    character => ({
-      ...character,
-      status: UNTOUCHED,
-      films: [],
-    })
-  ),
+  characters: characters.map(character => ({
+    ...character, status: UNTOUCHED,
+  })),
 }
 
 export class Provider extends PureComponent {
@@ -67,31 +63,37 @@ export class Provider extends PureComponent {
 
         case 200: {
 
-          // retrieve films from response
+          // retrieve filmUrls (for more requests) from response
           const stringified = await response.text()
           const { films: filmUrls } = JSON.parse(stringified)
 
+          // resolves to array of requested film objects:
           const films = await Promise.all(
             filmUrls.map(async(url) => {
+
+              // trigger the requests
               const response = await fetch(url)
+
               // return false to filter out request errors...
               // depending on UX-constraints, might want to display "errored" films
-
               const { status } = response
               if (status === 404) {
                 return false
               }
 
+              // return the parsed film
               const stringified = await response.text()
               return JSON.parse(stringified)
+
             }).filter(Boolean)
           )
 
+          // returns void, but might as well (instead of `break`)
           return this.setState(lastState => {
             const status = LOADED
             return this.updateCharacter(lastState, i, { films, status })
           })
-          
+
         }
 
         default: {
